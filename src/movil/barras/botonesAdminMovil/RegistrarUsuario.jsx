@@ -12,6 +12,7 @@ const RegistrarUsuario = ({ activeForm, onToggle }) => {
     role: "trabajador",
     department: ""
   });
+
   const [departments, setDepartments] = useState([]);
   const [message, setMessage] = useState("");
   const [success, setSuccess] = useState(false);
@@ -19,6 +20,7 @@ const RegistrarUsuario = ({ activeForm, onToggle }) => {
   const isActive = activeForm === "registrarUsuario";
 
   useEffect(() => {
+    if (!isActive) return;
     const fetchDepartments = async () => {
       try {
         const res = await api.get("/departments", {
@@ -29,7 +31,7 @@ const RegistrarUsuario = ({ activeForm, onToggle }) => {
         console.error("❌ Error al obtener departamentos", error);
       }
     };
-    if (isActive) fetchDepartments();
+    fetchDepartments();
   }, [isActive, token]);
 
   const handleChange = (e) =>
@@ -45,7 +47,7 @@ const RegistrarUsuario = ({ activeForm, onToggle }) => {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      onToggle(null); // ✅ Ocultar formulario tras registrar
+      onToggle(null);
       setMessage(res.data.message);
       setSuccess(true);
       setFormData({
@@ -64,16 +66,15 @@ const RegistrarUsuario = ({ activeForm, onToggle }) => {
   };
 
   return (
-    <div className="mb-6 relative">
+    <div className="mb-6 relative hidden sm:block">
       {/* 🧭 Botón */}
       <button
         onClick={() => onToggle(isActive ? null : "registrarUsuario")}
         title="Registrar nuevo usuario"
-          className="flex flex-col items-center bg-red-500 text-black p-0.5 w-16 rounded sm:p-2 sm:w-16 hover:bg-gray-400 transition mt-5"
+          className="flex flex-col items-center bg-red-500 text-black p-0.5 w-16 rounded sm:p-2 sm:w-16 hover:bg-red-500 transition mt-5"
       >
         <div className="relative group">
-          <UserRoundPlus size={22} className="transition-transform group-hover:scale-110" />
-          
+          <UserRoundPlus size={16} className="transition-transform group-hover:scale-110" />
         </div>
         <span className="text-[10px] mt-1">Nuevo</span>
       </button>

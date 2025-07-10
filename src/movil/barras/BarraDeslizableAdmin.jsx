@@ -19,7 +19,7 @@ import MigrarUsuario from "../../movil/barras/botonesAdminMovil/migrarUsuario";
 // ✅ Opción 4: listar todos
 import ListarTodos from "../../movil/barras/botonesAdminMovil/listarTodos";
 
-const BarraDeslizableTrabajador = () => {
+const BarraDeslizableAdmin = () => {
   const [activeForm, setActiveForm] = useState(null);
 
   const handleToggle = (formName) => {
@@ -40,7 +40,7 @@ const BarraDeslizableTrabajador = () => {
       {/* 🔹 Opción 2: herramientas admin */}
       <div className="flex-shrink-0 w-[90vw] h-16 bg-red-500 rounded-xl shadow-md px-2 snap-center flex items-center justify-between gap-2 ml-10">
         <BorrarUsuario activeForm={activeForm} onToggle={handleToggle} />
-        <BorrarTareaPendiente activeForm={activeForm} onToggle={handleToggle} />
+        <MigrarUsuario activeForm={activeForm} onToggle={handleToggle} />
         <BorrarDepartamento activeForm={activeForm} onToggle={handleToggle} />
         
       </div>
@@ -55,7 +55,7 @@ const BarraDeslizableTrabajador = () => {
 
       {/* 🔹 Opción 4: listar todos */}
       <div className="flex-shrink-0 w-[90vw] h-16 bg-red-500 rounded-xl shadow-md px-2 snap-center flex items-center justify-between gap-2 ml-10">
-       <MigrarUsuario activeForm={activeForm} onToggle={handleToggle} />
+       
         <ListarTodos activeForm={activeForm} onToggle={handleToggle} />
         <CerrarCesion activeForm={activeForm} onToggle={handleToggle} />
       </div>
@@ -63,4 +63,4 @@ const BarraDeslizableTrabajador = () => {
   );
 };
 
-export default BarraDeslizableTrabajador;
+export default BarraDeslizableAdmin;

@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import api from "../../../services/api";
 import { useAuth } from "../../../context/AuthContext";
 import { ClipboardPlus } from "lucide-react";
 
 const CrearTareas = ({ activeForm, onToggle }) => {
   const { token, user } = useAuth();
+  const formRef = useRef(null); // 👉 Para detectar clics fuera
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -35,6 +37,23 @@ const CrearTareas = ({ activeForm, onToggle }) => {
 
     if (isActive) fetchDepartments();
   }, [isActive, token]);
+
+  // 👉 Detectar clic fuera del formulario para cerrarlo
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (formRef.current && !formRef.current.contains(event.target)) {
+        onToggle(null);
+      }
+    };
+
+    if (isActive) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isActive, onToggle]);
 
   const handleDepartmentChange = async (e) => {
     const departmentId = e.target.value;
@@ -128,7 +147,10 @@ const CrearTareas = ({ activeForm, onToggle }) => {
 
       {/* 📬 Formulario flotante */}
       {isActive && (
-        <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-white p-4 text-black rounded shadow-md w-[300px] space-y-3 text-sm">
+        <div
+          ref={formRef}
+          className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-white p-4 text-black rounded shadow-md w-[300px] space-y-3 text-sm"
+        >
           <form onSubmit={handleSubmit}>
             <input
               type="text"
@@ -137,6 +159,7 @@ const CrearTareas = ({ activeForm, onToggle }) => {
               value={formData.title}
               onChange={handleChange}
               required
+              autoComplete="off"
               className="w-full px-3 py-2 border rounded"
             />
 
@@ -146,6 +169,7 @@ const CrearTareas = ({ activeForm, onToggle }) => {
               value={formData.description}
               onChange={handleChange}
               required
+              autoComplete="off"
               className="w-full px-3 py-2 border rounded"
             ></textarea>
 
