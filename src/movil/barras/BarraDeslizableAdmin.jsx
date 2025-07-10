@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 
 // ✅ Opción 1: botones del admin
-import RegistrarUsuario from "../../movil/barras/botonesAdminMovil/RegistrarUsuario";
 import BorrarTareaPendiente from "../../movil/barras/botonesAdminMovil/borrarTareaPendiente";
 import CrearTareas from "../../movil/barras/botonesAdminMovil/crearTareas";
 import CerrarCesion from "../../movil/barras/botonesAdminMovil/CerrarCesion";
@@ -18,6 +17,7 @@ import MigrarUsuario from "../../movil/barras/botonesAdminMovil/migrarUsuario";
 
 // ✅ Opción 4: listar todos
 import ListarTodos from "../../movil/barras/botonesAdminMovil/listarTodos";
+import RegistrarUsuario from "../../movil/barras/botonesAdminMovil/RegistrarUsuario";
 
 const BarraDeslizableAdmin = () => {
   const [activeForm, setActiveForm] = useState(null);
