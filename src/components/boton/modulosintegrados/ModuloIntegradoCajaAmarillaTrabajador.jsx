@@ -78,7 +78,7 @@ const ModuloIntegradoCajaAmarillaAdmin = () => {
   };
 
   return (
-<div className="md:hidden w-full bg-black flex flex-col px-4 py-2 max-h-[calc(100vh-180px)] overflow-y-scroll scrollbar-hide">
+<div className="md:hidden w-full bg-white flex flex-col px-4 py-2 max-h-[calc(100vh-180px)] overflow-y-scroll scrollbar-hide">
       <button
         className="self-end bg-white text-black text-xs px-2 py-1 rounded shadow"
         onClick={() => setMostrarAvatares(!mostrarAvatares)}

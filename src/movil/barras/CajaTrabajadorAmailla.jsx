@@ -4,7 +4,7 @@ import ModuloIntegradoCajaAmarillaTrabajador from "../../components/boton/modulo
 
 const CajATrabajadorAmarilla = () => {
   return (
-    <div className="flex-grow md:hidden w-full bg-black flex items-center px-4">
+    <div className="flex-grow md:hidden w-full bg-white flex items-center px-4">
       <ModuloIntegradoCajaAmarillaTrabajador />
     </div>
   );

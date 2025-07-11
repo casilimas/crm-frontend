@@ -4,7 +4,7 @@ import BarraDeslizableTrabajador from "./BarraDeslizableTrabajador";
 
 const CajaVioletaTrabajador = () => {
   return (
-    <div className=" md:hidden w-full h-[100px] bg-black flex items-center px-4">
+    <div className=" md:hidden w-full h-[100px] bg-white flex items-center px-4">
       <BarraDeslizableTrabajador />
     </div>
   );
