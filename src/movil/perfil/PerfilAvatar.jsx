@@ -71,7 +71,7 @@ const ProfileAvatar = () => {
   if (!currentProfile) return <p className="text-center">Cargando perfil...</p>;
 
   return (
-    <div className="block md:hidden relative mt-2 bg-gray-50 rounded-lg shadow-md p-2 w-[130px] h-[170px] mx-auto">
+    <div className="block md:hidden relative mt-2 bg-gray-50 rounded-lg shadow-md p-2 w-[120px] h-[110px] mx-auto">
       {/* Avatar */}
       <img
         src={currentProfile.avatar || "/default-avatar.png"}
@@ -80,13 +80,11 @@ const ProfileAvatar = () => {
         onClick={handleAvatarClick}
       />
 
-      {/* Datos */}
+      {/* Nombre */}
       <div className="mt-2 text-[11px] text-gray-700 text-left">
         <p className="font-bold truncate" title={currentProfile.name}>
           {currentProfile.name}
         </p>
-        <p><strong>Rol:</strong> {currentProfile.role}</p>
-        <p><strong>Status:</strong> {currentProfile.status}</p>
       </div>
 
       {/* Menú de opciones */}
