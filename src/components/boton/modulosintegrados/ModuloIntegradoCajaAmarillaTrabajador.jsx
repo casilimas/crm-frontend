@@ -31,16 +31,16 @@ const getRoleInitial = (role) => {
   }
 };
 
-const ModuloIntegradoCajaAmarillaAdmin = () => {
+const ModuloIntegradoCajaAmarillaTrabajador = () => {
   const { token } = useAuth();
   const { refrescar } = useActualizacion();
 
-  const [mostrarAvatares, setMostrarAvatares] = useState(true);
+  const [mostrarAvatares, setMostrarAvatares] = useState(false); // ✅ Mostrar publicaciones primero
   const [usuarios, setUsuarios] = useState({});
   const [tareasPublicadas, setTareasPublicadas] = useState([]);
   const [errorUsuarios, setErrorUsuarios] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
-  const [avatarExpandido, setAvatarExpandido] = useState(null); // 🆕
+  const [avatarExpandido, setAvatarExpandido] = useState(null);
 
   useEffect(() => {
     const fetchUsuarios = async () => {
@@ -54,7 +54,6 @@ const ModuloIntegradoCajaAmarillaAdmin = () => {
         setErrorUsuarios("Error al cargar los usuarios.");
       }
     };
-
     fetchUsuarios();
   }, [token, refrescar]);
 
@@ -69,16 +68,15 @@ const ModuloIntegradoCajaAmarillaAdmin = () => {
         console.error("❌ Error al obtener tareas publicadas:", error);
       }
     };
-
     fetchTareasPublicadas();
   }, [token, refrescar]);
 
   const toggleExpand = (id) => {
-    setAvatarExpandido(prev => (prev === id ? null : id));
+    setAvatarExpandido((prev) => (prev === id ? null : id));
   };
 
   return (
-<div className="md:hidden w-full bg-white flex flex-col px-4 py-2 max-h-[calc(100vh-180px)] overflow-y-scroll scrollbar-hide">
+    <div className="md:hidden w-full bg-white flex flex-col px-4 py-2 max-h-[calc(100vh-180px)] overflow-y-scroll scrollbar-hide">
       <button
         className="self-end bg-white text-black text-xs px-2 py-1 rounded shadow"
         onClick={() => setMostrarAvatares(!mostrarAvatares)}
@@ -86,45 +84,7 @@ const ModuloIntegradoCajaAmarillaAdmin = () => {
         {mostrarAvatares ? "📢 Ver Publicaciones" : "👥 Ver Avatares"}
       </button>
 
-      {mostrarAvatares ? (
-        <div className="overflow-y-auto mt-2">
-          {errorUsuarios && <p className="text-red-800 text-sm">{errorUsuarios}</p>}
-          {Object.entries(usuarios).map(([departamento, users]) => (
-            <div key={departamento} className="mb-2">
-              <h3 className="text-sm font-bold text-black mb-1">{departamento}</h3>
-              <ul className="space-y-1">
-                {users.map((user) => (
-                  <li
-                    key={user._id}
-                    className="flex items-center justify-between gap-2 text-xs"
-                  >
-                    <div className="flex items-center gap-2">
-                      <img
-                        src={user.avatar}
-                        alt={user.name}
-                        onClick={() => toggleExpand(user._id)}
-                        className={`
-                          cursor-pointer transition-transform duration-300 border-2 border-white rounded-full
-                          ${avatarExpandido === user._id ? "w-20 h-20 z-50 scale-105" : "w-8 h-8"}
-                        `}
-                      />
-                      <span className={`${getTextColorByStatus(user.status)} font-semibold`}>
-                        {user.name}
-                      </span>
-                    </div>
-                    <div
-                      className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white ${getCircleColorByStatus(user.status)}`}
-                      title={`Rol: ${user.role}`}
-                    >
-                      {getRoleInitial(user.role)}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      ) : (
+      {!mostrarAvatares ? (
         <div className="overflow-y-auto mt-2 text-black">
           {tareasPublicadas.length === 0 ? (
             <p className="text-sm">No hay tareas publicadas.</p>
@@ -164,6 +124,43 @@ const ModuloIntegradoCajaAmarillaAdmin = () => {
             ))
           )}
         </div>
+      ) : (
+        <div className="overflow-y-auto mt-2">
+          {errorUsuarios && <p className="text-red-800 text-sm">{errorUsuarios}</p>}
+          {Object.entries(usuarios).map(([departamento, users]) => (
+            <div key={departamento} className="mb-2">
+              <h3 className="text-sm font-bold text-black mb-1">{departamento}</h3>
+              <ul className="space-y-1">
+                {users.map((user) => (
+                  <li
+                    key={user._id}
+                    className="flex items-center justify-between gap-2 text-xs"
+                  >
+                    <div className="flex items-center gap-2">
+                      <img
+                        src={user.avatar}
+                        alt={user.name}
+                        onClick={() => toggleExpand(user._id)}
+                        className={`cursor-pointer transition-transform duration-300 border-2 border-white rounded-full ${
+                          avatarExpandido === user._id ? "w-20 h-20 z-50 scale-105" : "w-8 h-8"
+                        }`}
+                      />
+                      <span className={`${getTextColorByStatus(user.status)} font-semibold`}>
+                        {user.name}
+                      </span>
+                    </div>
+                    <div
+                      className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white ${getCircleColorByStatus(user.status)}`}
+                      title={`Rol: ${user.role}`}
+                    >
+                      {getRoleInitial(user.role)}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
       )}
 
       {selectedImage && (
@@ -182,4 +179,4 @@ const ModuloIntegradoCajaAmarillaAdmin = () => {
   );
 };
 
-export default ModuloIntegradoCajaAmarillaAdmin;
+export default ModuloIntegradoCajaAmarillaTrabajador;

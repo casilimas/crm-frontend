@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { UserRoundPlus } from "lucide-react";
 import api from "../../../services/api";
 import { useAuth } from "../../../context/AuthContext";
@@ -16,8 +16,26 @@ const RegistrarUsuario = ({ activeForm, onToggle }) => {
   const [departments, setDepartments] = useState([]);
   const [message, setMessage] = useState("");
   const [success, setSuccess] = useState(false);
-
   const isActive = activeForm === "registrarUsuario";
+
+  const modalRef = useRef(null);
+
+  // 👀 Cierra si se hace clic fuera del formulario
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (modalRef.current && !modalRef.current.contains(e.target)) {
+        onToggle(null);
+      }
+    };
+
+    if (isActive) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isActive, onToggle]);
 
   useEffect(() => {
     if (!isActive) return;
@@ -66,93 +84,95 @@ const RegistrarUsuario = ({ activeForm, onToggle }) => {
   };
 
   return (
-    <div className="mb-6 relative hidden sm:block">
+    <div className="mb-6 relative block sm:hidden">
       {/* 🧭 Botón */}
       <button
         onClick={() => onToggle(isActive ? null : "registrarUsuario")}
         title="Registrar nuevo usuario"
-          className="flex flex-col items-center bg-red-500 text-black p-0.5 w-16 rounded sm:p-2 sm:w-16 hover:bg-red-500 transition mt-5"
+        className="flex flex-col items-center bg-red-500 text-black p-0.5 w-16 rounded hover:bg-red-500 transition mt-5"
       >
         <div className="relative group">
-          <UserRoundPlus size={16} className="transition-transform group-hover:scale-110" />
+          <UserRoundPlus size={22} className="transition-transform group-hover:scale-110" />
         </div>
         <span className="text-[10px] mt-1">Nuevo</span>
       </button>
 
-      {/* 📩 Mensaje */}
-      {message && (
-        <div className="absolute top-[120%] left-0 bg-yellow-100 border border-yellow-600 text-yellow-800 text-sm rounded px-4 py-2 shadow-md w-[300px] z-50">
-          {message}
-        </div>
-      )}
-
-      {/* 📝 Formulario */}
+      {/* 📝 Modal centrado */}
       {isActive && (
-        <div className="absolute top-[150%] left-0 z-50 bg-white p-4 text-black rounded shadow-md w-[300px]">
-          <form onSubmit={handleSubmit} className="space-y-2 text-sm">
-            <input
-              type="text"
-              name="name"
-              placeholder="Nombre"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              className="w-full px-2 py-1 border rounded"
-            />
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center px-4">
+          <div ref={modalRef} className="bg-white text-black p-4 rounded shadow-md w-full max-w-xs">
+            <form onSubmit={handleSubmit} className="space-y-2 text-sm">
+              <input
+                type="text"
+                name="name"
+                placeholder="Nombre"
+                value={formData.name}
+                onChange={handleChange}
+                required
+                className="w-full px-2 py-1 border rounded"
+              />
 
-            <input
-              type="email"
-              name="email"
-              placeholder="Correo"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className="w-full px-2 py-1 border rounded"
-            />
+              <input
+                type="email"
+                name="email"
+                placeholder="Correo"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                className="w-full px-2 py-1 border rounded"
+              />
 
-            <input
-              type="password"
-              name="password"
-              placeholder="Contraseña"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              className="w-full px-2 py-1 border rounded"
-            />
+              <input
+                type="password"
+                name="password"
+                placeholder="Contraseña"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                className="w-full px-2 py-1 border rounded"
+              />
 
-            <select
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              className="w-full px-2 py-1 border rounded"
-            >
-              <option value="trabajador">Trabajador</option>
-              <option value="jefe">Jefe</option>
-              <option value="admin">Admin</option>
-            </select>
+              <select
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                className="w-full px-2 py-1 border rounded"
+              >
+                <option value="trabajador">Trabajador</option>
+                <option value="jefe">Jefe</option>
+                <option value="admin">Admin</option>
+              </select>
 
-            <select
-              name="department"
-              value={formData.department}
-              onChange={handleChange}
-              required
-              className="w-full px-2 py-1 border rounded"
-            >
-              <option value="">Departamento</option>
-              {departments.map((dep) => (
-                <option key={dep._id} value={dep._id}>
-                  {dep.name}
-                </option>
-              ))}
-            </select>
+              <select
+                name="department"
+                value={formData.department}
+                onChange={handleChange}
+                required
+                className="w-full px-2 py-1 border rounded"
+              >
+                <option value="">Departamento</option>
+                {departments.map((dep) => (
+                  <option key={dep._id} value={dep._id}>
+                    {dep.name}
+                  </option>
+                ))}
+              </select>
 
-            <button
-              type="submit"
-              className="w-full bg-red-600 text-white py-2 rounded hover:bg-red-700"
-            >
-              Registrar
-            </button>
-          </form>
+              <button
+                type="submit"
+                className="w-full bg-red-600 text-white py-2 rounded hover:bg-red-700"
+              >
+                Registrar
+              </button>
+            </form>
+
+            {/* Mensaje */}
+            {message && (
+              <p className={`mt-2 text-center text-sm ${success ? "text-green-600" : "text-red-600"}`}>
+                {message}
+              </p>
+            )}
+          </div>
         </div>
       )}
     </div>

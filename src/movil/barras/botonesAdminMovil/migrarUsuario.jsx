@@ -1,19 +1,39 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { FaExchangeAlt } from "react-icons/fa";
 import api from "../../../services/api";
 import { useAuth } from "../../../context/AuthContext";
-import { useActualizacion } from "../../../actualizacion/actualizacionAutomatica"; // ✅ Importación
+import { useActualizacion } from "../../../actualizacion/actualizacionAutomatica";
 
 const MigrarUsuario = ({ activeForm, onToggle }) => {
   const { token } = useAuth();
-  const { toggleRefrescar } = useActualizacion(); // ✅ Uso del contexto
+  const { toggleRefrescar } = useActualizacion();
   const [usuarios, setUsuarios] = useState([]);
   const [departamentos, setDepartamentos] = useState([]);
   const [selectedUser, setSelectedUser] = useState("");
   const [newDepartmentId, setNewDepartmentId] = useState("");
   const [message, setMessage] = useState("");
+  const formRef = useRef(null);
 
   const isActive = activeForm === "migrarUsuario";
+
+  // 🔒 Cierre automático si se hace clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (formRef.current && !formRef.current.contains(event.target)) {
+        onToggle(null); // Oculta el formulario
+      }
+    };
+
+    if (isActive) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isActive, onToggle]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -47,9 +67,8 @@ const MigrarUsuario = ({ activeForm, onToggle }) => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      toggleRefrescar(); // ✅ Refresca la CajaAzul u otros componentes
-
-      onToggle(null); // ✅ Ocultar formulario inmediatamente
+      toggleRefrescar();
+      onToggle(null);
 
       setMessage("✅ Usuario migrado correctamente");
       setSelectedUser("");
@@ -57,8 +76,7 @@ const MigrarUsuario = ({ activeForm, onToggle }) => {
 
       setTimeout(() => setMessage(""), 2000);
     } catch (err) {
-      const msg =
-        err.response?.data?.message || "Error al migrar el usuario";
+      const msg = err.response?.data?.message || "Error al migrar el usuario";
       setMessage(`❌ ${msg}`);
       setTimeout(() => setMessage(""), 2000);
     }
@@ -66,11 +84,10 @@ const MigrarUsuario = ({ activeForm, onToggle }) => {
 
   return (
     <div className="mb-6 relative">
-      {/* 🧭 Botón con ícono y texto */}
       <button
         onClick={() => onToggle(isActive ? null : "migrarUsuario")}
         title="Migrar usuario"
-          className="flex flex-col items-center bg-red-500 text-black p-0.5 w-16 rounded sm:p-2 sm:w-16 hover:bg-gray-400 transition mt-5"
+        className="flex flex-col items-center bg-red-500 text-black p-0.5 w-16 rounded sm:p-2 sm:w-16 hover:bg-gray-400 transition mt-5"
       >
         <div className="relative">
           <FaExchangeAlt size={22} className="transition-transform group-hover:scale-110" />
@@ -81,16 +98,17 @@ const MigrarUsuario = ({ activeForm, onToggle }) => {
         <span className="text-[10px] mt-1">Usuario..</span>
       </button>
 
-      {/* 📩 Mensaje */}
       {message && (
-        <div className="absolute top-[120%] left-0 bg-yellow-100 border border-yellow-600 text-yellow-800 text-sm rounded px-4 py-2 shadow-md w-[300px] z-50">
+        <div className="fixed top-5 right-5 bg-yellow-100 border border-yellow-600 text-yellow-800 text-sm rounded px-4 py-2 shadow-md w-[300px] z-50">
           {message}
         </div>
       )}
 
-      {/* 📝 Formulario */}
       {isActive && (
-        <div className="absolute top-[150%] left-0 z-50 bg-white p-4 text-black rounded shadow-md w-[300px]">
+        <div
+          ref={formRef}
+          className="fixed top-20 right-5 z-50 bg-white p-4 text-black rounded shadow-lg w-[300px]"
+        >
           <form onSubmit={handleSubmit} className="space-y-3">
             <select
               value={selectedUser}

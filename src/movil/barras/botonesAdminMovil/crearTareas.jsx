@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import api from "../../../services/api";
 import { useAuth } from "../../../context/AuthContext";
 import { ClipboardPlus } from "lucide-react";
@@ -18,6 +18,7 @@ const CrearTareas = ({ activeForm, onToggle }) => {
   const [users, setUsers] = useState([]);
   const [message, setMessage] = useState("");
   const [showMessage, setShowMessage] = useState(false);
+  const formRef = useRef(null);
 
   const isActive = activeForm === "crearTareas";
 
@@ -35,6 +36,25 @@ const CrearTareas = ({ activeForm, onToggle }) => {
 
     if (isActive) fetchDepartments();
   }, [isActive, token]);
+
+  // 🔒 Cerrar si se hace clic fuera del formulario
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (formRef.current && !formRef.current.contains(e.target)) {
+        onToggle(null);
+      }
+    };
+
+    if (isActive) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isActive, onToggle]);
 
   const handleDepartmentChange = async (e) => {
     const departmentId = e.target.value;
@@ -65,58 +85,49 @@ const CrearTareas = ({ activeForm, onToggle }) => {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    const { title, description, priority, durationHours, assignedTo } = formData;
+    e.preventDefault();
+    try {
+      const { title, description, priority, durationHours, assignedTo } = formData;
 
-    const response = await api.post(
-      "/tasks",
-      { title, description, priority, durationHours, assignedTo },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
+      const response = await api.post(
+        "/tasks",
+        { title, description, priority, durationHours, assignedTo },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
-    // ✅ Ocultar el formulario
-    onToggle(null);
+      onToggle(null); // Ocultar formulario
 
-    // ✅ Mostrar mensaje de éxito
-    setMessage(response.data.message || "✅ Tarea creada correctamente");
-    setShowMessage(true);
+      setMessage(response.data.message || "✅ Tarea creada correctamente");
+      setShowMessage(true);
 
-    // ✅ Resetear formulario
-    setFormData({
-      title: "",
-      description: "",
-      priority: "media",
-      durationHours: 1,
-      department: "",
-      assignedTo: "",
-    });
+      setFormData({
+        title: "",
+        description: "",
+        priority: "media",
+        durationHours: 1,
+        department: "",
+        assignedTo: "",
+      });
 
-    // ✅ Ocultar mensaje después de 2 segundos
-    setTimeout(() => {
-      setShowMessage(false);
-      setMessage("");
-    }, 2000);
-  } catch (err) {
-    // 🔴 Si hubo error (por ejemplo, ya tiene una tarea), también cerramos el formulario
-    onToggle(null);
+      setTimeout(() => {
+        setShowMessage(false);
+        setMessage("");
+      }, 2000);
+    } catch (err) {
+      onToggle(null);
 
-    // 🔴 Obtenemos el mensaje del backend
-    const backendMsg = err.response?.data?.message || "❌ Error desconocido al crear la tarea";
+      const backendMsg =
+        err.response?.data?.message || "❌ Error desconocido al crear la tarea";
 
-    // 🔴 Mostramos el mensaje
-    setMessage(`❌ ${backendMsg}`);
-    setShowMessage(true);
+      setMessage(`❌ ${backendMsg}`);
+      setShowMessage(true);
 
-    // 🔴 Lo ocultamos después de 3 segundos
-    setTimeout(() => {
-      setShowMessage(false);
-      setMessage("");
-    }, 5000);
-  }
-};
-
-
+      setTimeout(() => {
+        setShowMessage(false);
+        setMessage("");
+      }, 5000);
+    }
+  };
 
   return (
     <div className="mb-6 relative">
@@ -124,7 +135,7 @@ const CrearTareas = ({ activeForm, onToggle }) => {
       <button
         onClick={() => onToggle(isActive ? null : "crearTareas")}
         title="Crear nueva tarea"
-          className="flex flex-col items-center bg-red-500 text-black p-0.5 w-16 rounded sm:p-2 sm:w-16 hover:bg-gray-400 transition mt-5"
+        className="flex flex-col items-center bg-red-500 text-black p-0.5 w-16 rounded sm:p-2 sm:w-16 hover:bg-gray-400 transition mt-5"
       >
         <div className="relative group">
           <ClipboardPlus size={22} className="transition-transform group-hover:scale-110" />
@@ -134,14 +145,17 @@ const CrearTareas = ({ activeForm, onToggle }) => {
 
       {/* 📩 Mensaje */}
       {showMessage && (
-        <div className="absolute top-[120%] left-0 bg-yellow-100 border border-yellow-600 text-yellow-800 text-sm rounded px-4 py-2 shadow-md w-[300px] z-50">
+        <div className="fixed top-5 right-5 bg-yellow-100 border border-yellow-600 text-yellow-800 text-sm rounded px-4 py-2 shadow-md w-[300px] z-50">
           {message}
         </div>
       )}
 
       {/* 📬 Formulario */}
       {isActive && (
-        <div className="absolute top-[150%] left-0 z-50 bg-white p-4 text-black rounded shadow-md w-[300px] space-y-3 text-sm">
+        <div
+          ref={formRef}
+          className="fixed top-20 right-5 z-50 bg-white p-4 text-black rounded shadow-md w-[300px] space-y-3 text-sm"
+        >
           <form onSubmit={handleSubmit}>
             <input
               type="text"

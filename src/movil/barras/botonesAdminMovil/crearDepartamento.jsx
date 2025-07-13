@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { FaPlus } from "react-icons/fa";
 import api from "../../../services/api";
 import { useAuth } from "../../../context/AuthContext";
@@ -7,6 +7,7 @@ const CrearDepartamento = ({ activeForm, onToggle }) => {
   const { token } = useAuth();
   const [name, setName] = useState("");
   const [message, setMessage] = useState("");
+  const formRef = useRef(null);
 
   const isActive = activeForm === "crearDepartamento";
 
@@ -20,7 +21,7 @@ const CrearDepartamento = ({ activeForm, onToggle }) => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      onToggle(null); // ✅ Ocultar el formulario al crear
+      onToggle(null);
       setMessage("✅ Departamento creado exitosamente");
       setName("");
 
@@ -32,13 +33,32 @@ const CrearDepartamento = ({ activeForm, onToggle }) => {
     }
   };
 
+  // 🔒 Cierre al hacer clic fuera
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (formRef.current && !formRef.current.contains(e.target)) {
+        onToggle(null);
+      }
+    };
+
+    if (isActive) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isActive, onToggle]);
+
   return (
     <div className="mb-6 relative">
-      {/* 🧭 Botón con ícono y texto */}
+      {/* 🧭 Botón */}
       <button
         onClick={() => onToggle(isActive ? null : "crearDepartamento")}
         title="Crear departamento"
-          className="flex flex-col items-center bg-red-500 text-black p-0.5 w-16 rounded sm:p-2 sm:w-16 hover:bg-gray-400 transition mt-5"
+        className="flex flex-col items-center bg-red-500 text-black p-0.5 w-16 rounded sm:p-2 sm:w-16 hover:bg-gray-400 transition mt-5"
       >
         <div className="relative">
           <FaPlus size={22} className="transition-transform group-hover:scale-110" />
@@ -49,16 +69,19 @@ const CrearDepartamento = ({ activeForm, onToggle }) => {
         <span className="text-[10px] mt-1">Nuevo...</span>
       </button>
 
-      {/* 📩 Mensaje */}
+      {/* 📩 Mensaje flotante */}
       {message && (
-        <div className="absolute top-[120%] left-0 bg-yellow-100 border border-yellow-600 text-yellow-800 text-sm rounded px-4 py-2 shadow-md w-[300px] z-50">
+        <div className="fixed top-5 right-5 bg-yellow-100 border border-yellow-600 text-yellow-800 text-sm rounded px-4 py-2 shadow-md w-[300px] z-50">
           {message}
         </div>
       )}
 
-      {/* 📝 Formulario */}
+      {/* 📬 Formulario flotante centrado */}
       {isActive && (
-        <div className="absolute top-[150%] left-0 z-50 bg-white p-4 text-black rounded shadow-md w-[300px]">
+        <div
+          ref={formRef}
+          className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-6 text-black rounded shadow-lg w-[300px] z-50"
+        >
           <form onSubmit={handleSubmit} className="space-y-3">
             <input
               type="text"

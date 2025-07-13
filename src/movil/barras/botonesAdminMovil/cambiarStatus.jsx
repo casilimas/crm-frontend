@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import api from "../../../services/api";
 import { useAuth } from "../../../context/AuthContext";
 import { useActualizacion } from "../../../actualizacion/actualizacionAutomatica";
@@ -6,12 +6,13 @@ import { ShieldCheck } from "lucide-react";
 
 const CambiarStatus = ({ activeForm, onToggle }) => {
   const { token } = useAuth();
-  const { toggleRefrescar } = useActualizacion(); // ✅ ✅ AÑADIDO AQUÍ
+  const { toggleRefrescar } = useActualizacion();
   const [usuarios, setUsuarios] = useState({});
   const [selectedUser, setSelectedUser] = useState("");
   const [status, setStatus] = useState("presente");
   const [message, setMessage] = useState("");
   const [showMessage, setShowMessage] = useState(false);
+  const formRef = useRef(null);
 
   const isActive = activeForm === "cambiarStatus";
 
@@ -36,6 +37,25 @@ const CambiarStatus = ({ activeForm, onToggle }) => {
     if (isActive) fetchUsuarios();
   }, [isActive, token]);
 
+  // 🔒 Cierre al hacer clic fuera del formulario
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (formRef.current && !formRef.current.contains(e.target)) {
+        onToggle(null);
+      }
+    };
+
+    if (isActive) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isActive, onToggle]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!selectedUser) return;
@@ -47,7 +67,7 @@ const CambiarStatus = ({ activeForm, onToggle }) => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      toggleRefrescar(); // ✅ ACTUALIZA LA CAJA AZUL
+      toggleRefrescar();
 
       setSelectedUser("");
       setStatus("presente");
@@ -71,16 +91,13 @@ const CambiarStatus = ({ activeForm, onToggle }) => {
     }
   };
 
-
-
-  
   return (
     <div className="mb-6 relative">
-      {/* 🔘 Botón de activación */}
+      {/* 🔘 Botón */}
       <button
         onClick={() => onToggle(isActive ? null : "cambiarStatus")}
         title="Cambiar Status"
-          className="flex flex-col items-center bg-red-500 text-black p-0.5 w-16 rounded sm:p-2 sm:w-16 hover:bg-gray-400 transition mt-5"
+        className="flex flex-col items-center bg-red-500 text-black p-0.5 w-16 rounded sm:p-2 sm:w-16 hover:bg-gray-400 transition mt-5"
       >
         <div className="relative group">
           <ShieldCheck size={22} className="transition-transform group-hover:scale-110" />
@@ -88,16 +105,19 @@ const CambiarStatus = ({ activeForm, onToggle }) => {
         <span className="text-[10px] mt-1">Status</span>
       </button>
 
-      {/* 📩 Mensaje */}
+      {/* 📩 Mensaje flotante */}
       {showMessage && (
-        <div className="absolute top-[120%] left-0 bg-yellow-100 border border-yellow-600 text-yellow-800 text-sm rounded px-4 py-2 shadow-md w-[300px] z-50">
+        <div className="fixed top-5 right-5 bg-yellow-100 border border-yellow-600 text-yellow-800 text-sm rounded px-4 py-2 shadow-md w-[300px] z-50">
           {message}
         </div>
       )}
 
-      {/* 📬 Formulario */}
+      {/* 📬 Formulario centrado */}
       {isActive && (
-        <div className="absolute top-[150%] left-0 z-50 bg-white p-4 text-black rounded shadow-md w-[300px]">
+        <div
+          ref={formRef}
+          className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-white p-4 text-black rounded shadow-md w-[300px]"
+        >
           <form onSubmit={handleSubmit} className="space-y-3 text-sm">
             <select
               value={selectedUser}

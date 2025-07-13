@@ -35,12 +35,12 @@ const ModuloIntegradoCajaAmarillaAdmin = () => {
   const { token } = useAuth();
   const { refrescar } = useActualizacion();
 
-  const [mostrarAvatares, setMostrarAvatares] = useState(true);
+  const [mostrarAvatares, setMostrarAvatares] = useState(false); // 👈 Por defecto se muestran publicaciones
   const [usuarios, setUsuarios] = useState({});
   const [tareasPublicadas, setTareasPublicadas] = useState([]);
   const [errorUsuarios, setErrorUsuarios] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
-  const [avatarExpandido, setAvatarExpandido] = useState(null); // 🆕
+  const [avatarExpandido, setAvatarExpandido] = useState(null);
 
   useEffect(() => {
     const fetchUsuarios = async () => {
@@ -74,11 +74,11 @@ const ModuloIntegradoCajaAmarillaAdmin = () => {
   }, [token, refrescar]);
 
   const toggleExpand = (id) => {
-    setAvatarExpandido(prev => (prev === id ? null : id));
+    setAvatarExpandido((prev) => (prev === id ? null : id));
   };
 
   return (
-<div className="md:hidden w-full bg-gray-100 flex flex-col px-4 py-2 max-h-[calc(100vh-180px)] overflow-y-scroll scrollbar-hide">
+    <div className="md:hidden w-full bg-gray-100 flex flex-col px-4 py-2 max-h-[calc(100vh-180px)] overflow-y-scroll scrollbar-hide">
       <button
         className="self-end bg-white text-black text-xs px-2 py-1 rounded shadow"
         onClick={() => setMostrarAvatares(!mostrarAvatares)}
@@ -94,10 +94,7 @@ const ModuloIntegradoCajaAmarillaAdmin = () => {
               <h3 className="text-sm font-bold text-black mb-1">{departamento}</h3>
               <ul className="space-y-1">
                 {users.map((user) => (
-                  <li
-                    key={user._id}
-                    className="flex items-center justify-between gap-2 text-xs"
-                  >
+                  <li key={user._id} className="flex items-center justify-between gap-2 text-xs">
                     <div className="flex items-center gap-2">
                       <img
                         src={user.avatar}

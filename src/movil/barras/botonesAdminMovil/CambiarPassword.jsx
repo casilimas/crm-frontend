@@ -1,19 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import api from "../../../services/api";
 import { useAuth } from "../../../context/AuthContext";
 import { FaKey } from "react-icons/fa";
 
-  const CambiarPassword = ({ activeForm, onToggle }) => {
+const CambiarPassword = ({ activeForm, onToggle }) => {
   const { token, user } = useAuth();
   const [usuarios, setUsuarios] = useState({});
   const [selectedUser, setSelectedUser] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-  //const [showForm, setShowForm] = useState(false);
-   const isActive = activeForm === "cambiarPassword";
+  const formRef = useRef(null);
 
-
-
+  const isActive = activeForm === "cambiarPassword";
 
   useEffect(() => {
     const fetchUsuarios = async () => {
@@ -27,18 +25,34 @@ import { FaKey } from "react-icons/fa";
       }
     };
     if (isActive) fetchUsuarios();
-    }, [isActive, token]);
+  }, [isActive, token]);
 
+  // 🔒 Cerrar al hacer clic fuera
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (formRef.current && !formRef.current.contains(e.target)) {
+        onToggle(null);
+      }
+    };
+
+    if (isActive) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isActive, onToggle]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!selectedUser || !password) return;
 
-    const endpoint = `/users/password/${selectedUser}`;
-
     try {
       await api.put(
-        endpoint,
+        `/users/password/${selectedUser}`,
         { password },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -57,16 +71,13 @@ import { FaKey } from "react-icons/fa";
     }
   };
 
-
-  
   return (
     <div className="mb-6 relative">
+      {/* 🔘 Botón */}
       <button
-        //onClick={() => setShowForm(!showForm)}
         onClick={() => onToggle(isActive ? null : "cambiarPassword")}
-
         title="Cambiar contraseña"
-          className="flex flex-col items-center bg-red-500 text-black p-0.5 w-16 rounded sm:p-2 sm:w-16 hover:bg-gray-400 transition mt-5"
+        className="flex flex-col items-center bg-red-500 text-black p-0.5 w-16 rounded sm:p-2 sm:w-16 hover:bg-gray-400 transition mt-5"
       >
         <div className="relative">
           <FaKey size={22} className="transition-transform group-hover:scale-110" />
@@ -77,14 +88,19 @@ import { FaKey } from "react-icons/fa";
         <span className="text-[10px] mt-1">Contraseña</span>
       </button>
 
+      {/* 📩 Mensaje */}
       {message && (
-        <div className="absolute top-[120%] left-0 bg-yellow-100 border border-yellow-600 text-yellow-800 text-sm rounded px-4 py-2 shadow-md w-[300px] z-50">
+        <div className="fixed top-5 right-5 bg-yellow-100 border border-yellow-600 text-yellow-800 text-sm rounded px-4 py-2 shadow-md w-[300px] z-50">
           {message}
         </div>
       )}
 
+      {/* 📬 Formulario centrado */}
       {isActive && (
-        <div className="absolute top-[150%] left-0 z-50 bg-white p-4 text-black rounded shadow-md w-[300px]">
+        <div
+          ref={formRef}
+          className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-white p-4 text-black rounded shadow-md w-[300px]"
+        >
           <form onSubmit={handleSubmit} className="space-y-3">
             <select
               value={selectedUser}

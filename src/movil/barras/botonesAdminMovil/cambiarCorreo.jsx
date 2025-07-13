@@ -1,5 +1,4 @@
-// 📁 src/components/boton/admin/CambiarCorreo.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { MailCheck } from 'lucide-react';
 import api from '../../../services/api';
 import { useAuth } from '../../../context/AuthContext';
@@ -11,6 +10,7 @@ const CambiarCorreo = ({ activeForm, onToggle }) => {
   const [newEmail, setNewEmail] = useState('');
   const [message, setMessage] = useState('');
   const [showMessage, setShowMessage] = useState(false);
+  const formRef = useRef(null);
 
   const isActive = activeForm === 'cambiarCorreo';
 
@@ -21,12 +21,9 @@ const CambiarCorreo = ({ activeForm, onToggle }) => {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        // Agrupar usuarios por departamento
         const agrupados = {};
         for (const [departamento, lista] of Object.entries(res.data)) {
-          if (lista.length > 0) {
-            agrupados[departamento] = lista;
-          }
+          if (lista.length > 0) agrupados[departamento] = lista;
         }
         setUsuarios(agrupados);
       } catch (error) {
@@ -36,6 +33,25 @@ const CambiarCorreo = ({ activeForm, onToggle }) => {
 
     if (isActive) fetchUsuarios();
   }, [isActive, token]);
+
+  // 🔒 Cerrar al hacer clic fuera
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (formRef.current && !formRef.current.contains(e.target)) {
+        onToggle(null);
+      }
+    };
+
+    if (isActive) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isActive, onToggle]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -48,11 +64,10 @@ const CambiarCorreo = ({ activeForm, onToggle }) => {
 
       setSelectedUser('');
       setNewEmail('');
-      onToggle(null); // Oculta el formulario
+      onToggle(null);
 
       setMessage('✅ Correo actualizado correctamente');
       setShowMessage(true);
-
       setTimeout(() => {
         setShowMessage(false);
         setMessage('');
@@ -67,34 +82,33 @@ const CambiarCorreo = ({ activeForm, onToggle }) => {
     }
   };
 
-
-
-
   return (
     <div className="mb-6 relative">
-      {/* 🔘 Botón para desplegar formulario */}
+      {/* 🔘 Botón */}
       <button
         onClick={() => onToggle(isActive ? null : 'cambiarCorreo')}
         title="Cambiar correo de usuario"
-          className="flex flex-col items-center bg-red-500 text-black p-0.5 w-16 rounded sm:p-2 sm:w-16 hover:bg-gray-400 transition mt-5"
+        className="flex flex-col items-center bg-red-500 text-black p-0.5 w-16 rounded sm:p-2 sm:w-16 hover:bg-gray-400 transition mt-5"
       >
         <div className="relative group">
           <MailCheck size={22} className="transition-transform group-hover:scale-110" />
-          
         </div>
         <span className="text-[8px] mt-1">Cambio correo</span>
       </button>
 
       {/* 📩 Mensaje */}
       {showMessage && (
-        <div className="absolute top-[120%] left-0 bg-yellow-100 border border-yellow-600 text-yellow-800 text-sm rounded px-4 py-2 shadow-md w-[300px] z-50">
+        <div className="fixed top-5 right-5 bg-yellow-100 border border-yellow-600 text-yellow-800 text-sm rounded px-4 py-2 shadow-md w-[300px] z-50">
           {message}
         </div>
       )}
 
-      {/* 📬 Formulario */}
+      {/* 📬 Formulario flotante centrado */}
       {isActive && (
-        <div className="absolute top-[150%] left-0 z-50 bg-white p-4 text-black rounded shadow-md w-[300px]">
+        <div
+          ref={formRef}
+          className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-4 text-black rounded shadow-md w-[300px] z-50"
+        >
           <form onSubmit={handleSubmit} className="space-y-3 text-sm">
             <select
               value={selectedUser}

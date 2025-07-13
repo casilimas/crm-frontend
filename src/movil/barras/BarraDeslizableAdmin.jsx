@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 
 // ✅ Opción 1: botones del admin
+import RegistrarUsuario from "../../movil/barras/botonesAdminMovil/RegistrarUsuario";
 import BorrarTareaPendiente from "../../movil/barras/botonesAdminMovil/borrarTareaPendiente";
 import CrearTareas from "../../movil/barras/botonesAdminMovil/crearTareas";
 import CerrarCesion from "../../movil/barras/botonesAdminMovil/CerrarCesion";
@@ -17,7 +18,8 @@ import MigrarUsuario from "../../movil/barras/botonesAdminMovil/migrarUsuario";
 
 // ✅ Opción 4: listar todos
 import ListarTodos from "../../movil/barras/botonesAdminMovil/listarTodos";
-import RegistrarUsuario from "../../movil/barras/botonesAdminMovil/RegistrarUsuario";
+
+import CambiarStatus from "../../movil/barras/botonesAdminMovil/cambiarStatus";
 
 const BarraDeslizableAdmin = () => {
   const [activeForm, setActiveForm] = useState(null);
@@ -31,9 +33,10 @@ const BarraDeslizableAdmin = () => {
 
       {/* 🔹 Opción 1: botones del admin */}
       <div className="flex-shrink-0 w-[90vw] h-16 bg-red-500 rounded-xl shadow-md px-2 snap-center flex items-center justify-between gap-2 ml-10">
-        <RegistrarUsuario activeForm={activeForm} onToggle={handleToggle} />
+       
         <BorrarTareaPendiente activeForm={activeForm} onToggle={handleToggle} />
         <CrearTareas activeForm={activeForm} onToggle={handleToggle} />
+         <RegistrarUsuario activeForm={activeForm} onToggle={handleToggle} />
         <CerrarCesion activeForm={activeForm} onToggle={handleToggle} />
       </div>
 
@@ -57,6 +60,8 @@ const BarraDeslizableAdmin = () => {
       <div className="flex-shrink-0 w-[90vw] h-16 bg-red-500 rounded-xl shadow-md px-2 snap-center flex items-center justify-between gap-2 ml-10">
        
         <ListarTodos activeForm={activeForm} onToggle={handleToggle} />
+        <CambiarStatus activeForm={activeForm} onToggle={handleToggle} />
+        
         <CerrarCesion activeForm={activeForm} onToggle={handleToggle} />
       </div>
     </div>
