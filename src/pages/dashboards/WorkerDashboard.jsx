@@ -9,7 +9,7 @@ import CajATrabajadorAmarilla from "../../movil/barras/CajaTrabajadorAmailla";
 
 const WorkerDashboard = () => {
   return (
-    <div className="relative min-h-screen bg-white text-black md:text-white transition-all duration-300 overflow-hidden flex flex-col md:flex-row">
+    <div className="relative h-screen overflow-hidden bg-white text-black md:text-white transition-all duration-300 flex flex-col md:flex-row">
       
       {/* 🟩 Caja verde móvil (solo visible en sm) */}
       <div className="block md:hidden w-full">
