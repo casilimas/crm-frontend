@@ -10,6 +10,7 @@ import CerrarCesion from "../../movil/barras/botonesAdminMovil/CerrarCesion";
 import BorrarUsuario from "../../movil/barras/botonesAdminMovil/BorrarUsuario";
 import BorrarDepartamento from "../../movil/barras/botonesAdminMovil/borrarDepartamento";
 import CambiarCorreo from "../../movil/barras/botonesAdminMovil/cambiarCorreo";
+import CambiarRolTrabajador from "../../movil/barras/botonesAdminMovil/CambiarRolTrabajador";
 
 // ✅ Opción 3: otros módulos admin
 import CrearDepartamento from "../../movil/barras/botonesAdminMovil/crearDepartamento";
@@ -61,7 +62,7 @@ const BarraDeslizableAdmin = () => {
        
         <ListarTodos activeForm={activeForm} onToggle={handleToggle} />
         <CambiarStatus activeForm={activeForm} onToggle={handleToggle} />
-        
+        <CambiarRolTrabajador activeForm={activeForm} onToggle={handleToggle} />
         <CerrarCesion activeForm={activeForm} onToggle={handleToggle} />
       </div>
     </div>
